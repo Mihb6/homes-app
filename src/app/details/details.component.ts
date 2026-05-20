@@ -1,10 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HousingService } from '../housing.service';
 import { HousingLocation } from '../housing-location';
 import { HousingLocationComponent } from '../housing-location/housing-location.component';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { from, map, Observable, switchMap, catchError, EMPTY } from 'rxjs';
+
 @Component({
   selector: 'app-details',
   standalone: true,
@@ -45,6 +47,7 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 export class DetailsComponent {
   route: ActivatedRoute = inject(ActivatedRoute);
   housingService = inject(HousingService);
+  router = inject(Router);
   housingLocation: HousingLocation | undefined;
   applyForm = new FormGroup({
     firstName: new FormControl(''),
@@ -54,9 +57,16 @@ export class DetailsComponent {
 
   constructor() {
     const housingLocationId = Number(this.route.snapshot.params['id']);
-    this.housingService.getHousingLocationById(housingLocationId).subscribe(housingLocation => {
-      this.housingLocation = housingLocation;
+    this.housingService.getHousingLocationById(housingLocationId).subscribe({
+      next: (housingLocation) => {
+        this.housingLocation = housingLocation;
+      },
+      error: (err) => {
+        console.log("Error!", err.message);
+        this.router.navigate(['/']);
+      }
     });
+    
   }
   submitApplication(){
     this.housingService.submitApplication(
