@@ -12,6 +12,10 @@ const routeConfig: Routes = [
         path: 'details/:id',
         component: DetailsComponent,
         title: 'Details Page'
+    },
+    {
+        path: '**',
+        redirectTo:''
     }
 
 
